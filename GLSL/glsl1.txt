@@ -1,0 +1,57 @@
+#include "Common.h"
+//draw texture and color
+Window window;
+Camera camera;
+Shader textureShader;
+Shader colorShader;
+Object texture;
+Object color;
+vec2 texturePos = vec2(0.0f, 0.0f);
+vec2 colorPos = vec2(0.0f, 0.0f);
+
+void Create() {
+	glewInit();
+	textureShader.ShaderInit();
+	textureShader.ProcessShaderFile("TextureFS.glsl", GL_FRAGMENT_SHADER);
+	textureShader.ProcessShaderFile("TextureVS.glsl", GL_VERTEX_SHADER);
+	colorShader.ShaderInit();
+	colorShader.ProcessShaderFile("ColorFS.glsl", GL_FRAGMENT_SHADER);
+	colorShader.ProcessShaderFile("ColorVS.glsl", GL_VERTEX_SHADER);
+	texture.CreateBuffer(100, 100);
+	texture.LoadTexture("Icon 2.png");
+	color.CreateBuffer(200, 200, 1, 0, 0);
+}
+
+void Render() {
+	if (glfwGetKey(window.gameWindow, GLFW_KEY_D)) {
+		texturePos.x += 5;
+	}
+	if (glfwGetKey(window.gameWindow, GLFW_KEY_A)) {
+		texturePos.x -= 5;
+	}
+	if (glfwGetKey(window.gameWindow, GLFW_KEY_W)) {
+		texturePos.y += 5;
+	}
+	if (glfwGetKey(window.gameWindow, GLFW_KEY_S)) {
+		texturePos.y -= 5;
+	}
+	colorShader.ApplyShader();
+	camera.Update(window, colorShader);
+	color.Update(colorPos, colorShader);
+	color.Draw(colorShader);
+	textureShader.ApplyShader();
+	camera.Update(window, textureShader);
+	texture.Update(texturePos, textureShader);
+	texture.Draw(textureShader);
+}
+
+int main() {
+	window.CreateGameWindow(800, 800, "My Game Window", false);
+	Create();
+	do {
+		window.SetBGColor(0.1, 0.25, 0.3, 0);
+		Render();
+		window.UpdateWindow();
+	} while (window.IsWindowNotClosed());
+	return 0;
+}
